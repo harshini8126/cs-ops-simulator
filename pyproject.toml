@@ -1,0 +1,15 @@
+[project]
+name = "cs-ops-simulator"
+version = "0.1.0"
+description = "Customer Support Operations Simulation Environment"
+requires-python = ">=3.10"
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "gradio"
+]
+
+[tool.setuptools]
+py-modules = []
