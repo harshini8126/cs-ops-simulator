@@ -1,0 +1,4 @@
+name: cs_ops_simulator
+version: 1.0
+entrypoint: env:CSOpsEnv
+description: A simulation environment for customer support operations involving email classification, prioritization, and action decisions under time constraints.
