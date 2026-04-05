@@ -33,3 +33,6 @@ def step(action: Action):
 @app.get("/state")
 def state():
     return env.state()
+
+def main():
+    return app
