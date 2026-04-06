@@ -1,49 +1,74 @@
 from env import CSOpsEnv
 from models import Action
 
-def get_action_from_llm(email):
-    text = (email.subject + " " + email.body).lower()
+# Rule-based agent
+def get_action(email):
+    subject = email.subject.lower()
+    body = email.body.lower()
 
-    if "refund" in text or "charged" in text:
-        return {"category": "billing", "priority": "high", "decision": "refund", "reply": "Refund initiated."}
-    elif "crash" in text or "bug" in text:
-        return {"category": "technical", "priority": "high", "decision": "escalate", "reply": "Tech team notified."}
-    elif "lottery" in text:
-        return {"category": "spam", "priority": "low", "decision": "ignore", "reply": ""}
+    # Category
+    if "refund" in body or "charge" in body or "billing" in subject:
+        category = "billing"
+    elif "error" in body or "bug" in body or "not working" in body:
+        category = "technical"
     else:
-        return {"category": "general", "priority": "low", "decision": "reply", "reply": "We will assist you."}
+        category = "general"
+
+    # Priority
+    if email.urgency >= 8:
+        priority = "high"
+    elif email.urgency >= 5:
+        priority = "medium"
+    else:
+        priority = "low"
+
+    # Decision
+    if category == "billing":
+        decision = "refund"
+    elif category == "technical":
+        decision = "escalate"
+    else:
+        decision = "respond"
+
+    reply = "We have received your request and are processing it."
+
+    return Action(
+        email_id=email.id,
+        category=category,
+        priority=priority,
+        decision=decision,
+        reply=reply
+    )
 
 
-def run_task(task):
-    env = CSOpsEnv(task)
+def run_task(task_name):
+    print(f"[START] task={task_name}")
+
+    env = CSOpsEnv(task_name)
     obs = env.reset()
-    total = 0
 
-    output_lines = []
+    total_score = 0.0
 
-    output_lines.append(f"[START] task={task}")
-
-    done = False
-    while not done:
-        if not obs.inbox:
-            break
-
+    while obs.time_left > 0 and len(obs.inbox) > 0:
         email = obs.inbox[0]
-        data = get_action_from_llm(email)
 
-        action = Action(
-            email_id=email.id,
-            category=data["category"],
-            priority=data["priority"],
-            decision=data["decision"],
-            reply=data["reply"]
-        )
+        action = get_action(email)
 
         obs, reward, done, _ = env.step(action)
-        total += reward.score
 
-        output_lines.append(f"[STEP] email={email.id} score={reward.score}")
+        # ✅ FIX: use reward.score instead of reward
+        print(f"[STEP] email={email.id} score={reward.score}")
 
-    output_lines.append(f"[END] task={task} total_score={total}\n")
+        total_score += reward.score
 
-    return "\n".join(output_lines)
+        if done:
+            break
+
+    print(f"[END] task={task_name} total_score={total_score}")
+    print()
+
+
+# MAIN
+if __name__ == "__main__":
+    for task in ["easy", "medium", "hard"]:
+        run_task(task)
