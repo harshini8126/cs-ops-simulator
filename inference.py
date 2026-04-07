@@ -1,43 +1,35 @@
 from env import CSOpsEnv
 from models import Action
 
-# Rule-based agent
+
 def get_action(email):
-    subject = email.subject.lower()
-    body = email.body.lower()
+    subject = email["subject"].lower()
+    body = email["body"].lower()
+    urgency = email["urgency"]
 
     # Category
-    if "refund" in body or "charge" in body or "billing" in subject:
+    if "billing" in subject or "charge" in body:
         category = "billing"
-    elif "error" in body or "bug" in body or "not working" in body:
+    elif "error" in body or "issue" in body:
         category = "technical"
     else:
         category = "general"
 
     # Priority
-    if email.urgency >= 8:
-        priority = "high"
-    elif email.urgency >= 5:
-        priority = "medium"
-    else:
-        priority = "low"
+    priority = urgency
 
     # Decision
-    if category == "billing":
-        decision = "refund"
-    elif category == "technical":
+    if urgency == "high":
         decision = "escalate"
     else:
-        decision = "respond"
-
-    reply = "We have received your request and are processing it."
+        decision = "reply"
 
     return Action(
-        email_id=email.id,
+        email_id=email["id"],
         category=category,
         priority=priority,
         decision=decision,
-        reply=reply
+        reply="We will resolve your issue shortly."
     )
 
 
@@ -49,17 +41,16 @@ def run_task(task_name):
 
     total_score = 0.0
 
-    while obs.time_left > 0 and len(obs.inbox) > 0:
-        email = obs.inbox[0]
+    while obs["time_left"] > 0 and len(obs["inbox"]) > 0:
+        email = obs["inbox"][0]
 
         action = get_action(email)
 
         obs, reward, done, _ = env.step(action)
 
-        # ✅ FIX: use reward.score instead of reward
-        print(f"[STEP] email={email.id} score={reward.score}")
+        print(f"[STEP] email={email['id']} score={reward}")
 
-        total_score += reward.score
+        total_score += reward
 
         if done:
             break
@@ -67,8 +58,9 @@ def run_task(task_name):
     print(f"[END] task={task_name} total_score={total_score}")
     print()
 
-
-# MAIN
 if __name__ == "__main__":
     for task in ["easy", "medium", "hard"]:
-        run_task(task)
+        try:
+            run_task(task)
+        except Exception as e:
+            print(f"[ERROR] task={task} error={str(e)}")
