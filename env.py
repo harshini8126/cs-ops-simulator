@@ -1,13 +1,25 @@
 import random
 
 class CSOpsEnv:
-    def __init__(self):
+    def __init__(self, task_name="easy"):
+        self.task_name = task_name
+
+        # Difficulty settings
+        if task_name == "easy":
+            self.max_steps = 3
+            self.num_emails = 2
+        elif task_name == "medium":
+            self.max_steps = 5
+            self.num_emails = 3
+        else:  # hard
+            self.max_steps = 7
+            self.num_emails = 5
+
         self.time_left = 0
         self.inbox = []
         self.processed = []
         self.satisfaction = 1.0
         self.current_step = 0
-        self.max_steps = 5
 
     def _generate_email(self):
         categories = ["billing", "technical", "spam", "general"]
@@ -23,7 +35,7 @@ class CSOpsEnv:
 
     def reset(self):
         self.time_left = self.max_steps
-        self.inbox = [self._generate_email() for _ in range(3)]
+        self.inbox = [self._generate_email() for _ in range(self.num_emails)]
         self.processed = []
         self.satisfaction = 1.0
         self.current_step = 0
@@ -37,20 +49,19 @@ class CSOpsEnv:
             done = True
             return self._get_observation(), reward, done, {}
 
-        email = next((e for e in self.inbox if e["id"] == action.get("email_id")), None)
+        email = next((e for e in self.inbox if e["id"] == action.email_id), None)
 
         if email:
-            if action.get("category") == email["true_category"]:
+            if action.category == email["true_category"]:
                 reward += 0.4
-            if action.get("priority") == email["urgency"]:
+            if action.priority == email["urgency"]:
                 reward += 0.3
 
-            decision = action.get("decision")
-            if decision == "reply":
+            if action.decision == "reply":
                 reward += 0.2
-            elif decision == "escalate":
+            elif action.decision == "escalate":
                 reward += 0.1
-            elif decision == "ignore" and email["urgency"] == "high":
+            elif action.decision == "ignore" and email["urgency"] == "high":
                 reward -= 0.3
 
             self.inbox.remove(email)
@@ -76,5 +87,3 @@ class CSOpsEnv:
             "time_left": self.time_left,
             "satisfaction": self.satisfaction
         }
-          
-      
