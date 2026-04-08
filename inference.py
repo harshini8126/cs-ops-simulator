@@ -98,8 +98,12 @@ def run_task(task):
     count = len(env.processed) if len(env.processed) > 0 else 1
     normalized_score = total_score / count
 
-    # ensure strict (0,1)
-    normalized_score = max(0.01, min(normalized_score, 0.99))
+    if normalized_score <= 0:
+        normalized_score = 0.05
+    elif normalized_score >= 1:
+        normalized_score = 0.95
+    else:
+        normalized_score = float(f"{normalized_score:.4f}")
 
     print(f"[END] task={task} total_score={normalized_score}")
 
