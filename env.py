@@ -17,7 +17,6 @@ class CSOpsEnv:
         self.time_left = 0
         self.inbox = []
         self.processed = []
-        self.satisfaction = 1.0
         self.current_step = 0
 
     def _generate_email(self):
@@ -43,7 +42,7 @@ class CSOpsEnv:
         done = False
 
         if not self.inbox:
-            return self._get_obs(), reward, True, {}
+            return self._get_obs(), 0.01, True, {}
 
         email = self.inbox[0]
 
@@ -65,6 +64,7 @@ class CSOpsEnv:
 
         if self.time_left <= 0:
             done = True
+        reward = max(0.01, min(reward, 0.99))
 
         return self._get_obs(), reward, done, {}
 
