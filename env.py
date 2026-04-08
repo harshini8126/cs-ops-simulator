@@ -42,7 +42,7 @@ class CSOpsEnv:
         done = False
 
         if not self.inbox:
-            return self._get_obs(), 0.01, True, {}
+            return self._get_obs(), 0.05, True, {}
 
         email = self.inbox[0]
 
@@ -64,7 +64,13 @@ class CSOpsEnv:
 
         if self.time_left <= 0:
             done = True
-        reward = max(0.01, min(reward, 0.99))
+
+        if reward <= 0:
+            reward = 0.05
+        elif reward >= 1:
+            reward = 0.95
+        else:
+            reward = float(f"{reward:.4f}")
 
         return self._get_obs(), reward, done, {}
 
@@ -76,4 +82,3 @@ class CSOpsEnv:
             "inbox": self.inbox,
             "time_left": self.time_left
         }
-       
