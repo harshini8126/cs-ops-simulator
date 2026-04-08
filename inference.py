@@ -5,7 +5,6 @@ import os
 client = None
 MODEL = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
-# create client only if API exists
 if os.environ.get("API_BASE_URL") and os.environ.get("API_KEY"):
     from openai import OpenAI
     client = OpenAI(
@@ -61,9 +60,8 @@ Return: category, priority, decision
             )
 
         except Exception:
-            pass
+            pass  # fallback
 
-    # fallback
     return Action(
         email_id=email["id"],
         category="general",
@@ -95,17 +93,7 @@ def run_task(task):
         if done:
             break
 
-    count = len(env.processed) if len(env.processed) > 0 else 1
-    normalized_score = total_score / count
-
-    if normalized_score <= 0:
-        normalized_score = 0.05
-    elif normalized_score >= 1:
-        normalized_score = 0.95
-    else:
-        normalized_score = float(f"{normalized_score:.4f}")
-
-    print(f"[END] task={task} total_score={normalized_score}")
+    print(f"[END] task={task} total_score={total_score}")
 
 
 if __name__ == "__main__":
