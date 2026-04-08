@@ -14,7 +14,6 @@ if os.environ.get("API_BASE_URL") and os.environ.get("API_KEY"):
 
 
 def get_action(email):
-   
     if client:
         try:
             response = client.chat.completions.create(
@@ -61,8 +60,7 @@ Return: category, priority, decision
             )
 
         except Exception:
-            pass  # fallback below
-
+            pass  
     return Action(
         email_id=email["id"],
         category="general",
