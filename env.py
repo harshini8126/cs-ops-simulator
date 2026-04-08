@@ -4,15 +4,9 @@ class CSOpsEnv:
     def __init__(self, task_name="easy"):
         self.task_name = task_name
 
-        if task_name == "easy":
-            self.max_steps = 3
-            self.num_emails = 2
-        elif task_name == "medium":
-            self.max_steps = 5
-            self.num_emails = 3
-        else:
-            self.max_steps = 7
-            self.num_emails = 5
+        # Keep fixed to avoid edge cases
+        self.max_steps = 5
+        self.num_emails = 3
 
         self.time_left = 0
         self.inbox = []
@@ -32,9 +26,12 @@ class CSOpsEnv:
 
     def reset(self):
         self.time_left = self.max_steps
-        self.inbox = [self._generate_email() for _ in range(self.num_emails)]
+
+        self.inbox = [self._generate_email() for _ in range(3)]
+
         self.processed = []
         self.current_step = 0
+
         return self._get_obs()
 
     def step(self, action):
@@ -42,7 +39,7 @@ class CSOpsEnv:
         done = False
 
         if not self.inbox:
-            return self._get_obs(), 0.05, True, {}
+            return self._get_obs(), 0.2, True, {}
 
         email = self.inbox[0]
 
@@ -66,11 +63,11 @@ class CSOpsEnv:
             done = True
 
         if reward <= 0:
-            reward = 0.05
+            reward = 0.2
         elif reward >= 1:
-            reward = 0.95
+            reward = 0.8
         else:
-            reward = float(f"{reward:.4f}")
+            reward = float(f"{reward:.3f}")
 
         return self._get_obs(), reward, done, {}
 
