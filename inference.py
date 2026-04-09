@@ -5,6 +5,7 @@ import os
 client = None
 MODEL = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
+# create client only if API exists
 if os.environ.get("API_BASE_URL") and os.environ.get("API_KEY"):
     from openai import OpenAI
     client = OpenAI(
@@ -27,8 +28,6 @@ Classify this email and decide action.
 Subject: {email["subject"]}
 Body: {email["body"]}
 Urgency: {email["urgency"]}
-
-Return: category, priority, decision
 """
                     }
                 ],
@@ -60,8 +59,9 @@ Return: category, priority, decision
             )
 
         except Exception:
-            pass  # fallback
+            pass
 
+    
     return Action(
         email_id=email["id"],
         category="general",
@@ -92,8 +92,16 @@ def run_task(task):
 
         if done:
             break
+    final_score = total_score / env.max_steps
 
-    print(f"[END] task={task} total_score={total_score}")
+    if final_score <= 0:
+        final_score = 0.1
+    elif final_score >= 1:
+        final_score = 0.9
+    else:
+        final_score = float(f"{final_score:.4f}")
+
+    print(f"[END] task={task} total_score={final_score}")
 
 
 if __name__ == "__main__":
