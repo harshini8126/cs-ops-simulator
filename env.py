@@ -4,14 +4,12 @@ class CSOpsEnv:
     def __init__(self, task_name="easy"):
         self.task_name = task_name
 
-        # Keep fixed to avoid edge cases
         self.max_steps = 5
         self.num_emails = 3
 
         self.time_left = 0
         self.inbox = []
         self.processed = []
-        self.current_step = 0
 
     def _generate_email(self):
         categories = ["billing", "technical", "spam", "general"]
@@ -26,12 +24,8 @@ class CSOpsEnv:
 
     def reset(self):
         self.time_left = self.max_steps
-
-        self.inbox = [self._generate_email() for _ in range(3)]
-
+        self.inbox = [self._generate_email() for _ in range(self.num_emails)]
         self.processed = []
-        self.current_step = 0
-
         return self._get_obs()
 
     def step(self, action):
@@ -57,11 +51,10 @@ class CSOpsEnv:
         self.processed.append(email)
 
         self.time_left -= 1
-        self.current_step += 1
-
         if self.time_left <= 0:
             done = True
 
+        # 🔥 STRICT SAFE RANGE (never 0 or 1)
         if reward <= 0:
             reward = 0.2
         elif reward >= 1:
