@@ -92,7 +92,6 @@ def run_task(task):
 
         if done:
             break
-
     final_score = total_score / (env.max_steps + 1)
 
     if final_score <= 0:
@@ -102,7 +101,7 @@ def run_task(task):
     else:
         final_score = float(f"{final_score:.4f}")
 
-    print(f"[END] task={task} total_score={final_score}")
+    print(f"[END] task={task} score={final_score}")
 
 
 if __name__ == "__main__":
