@@ -3,7 +3,6 @@ import random
 class CSOpsEnv:
     def __init__(self, task_name="easy"):
         self.task_name = task_name
-
         self.max_steps = 5
         self.num_emails = 3
 
@@ -15,7 +14,7 @@ class CSOpsEnv:
         categories = ["billing", "technical", "spam", "general"]
         urgencies = ["low", "medium", "high"]
         return {
-            "id": f"e{random.randint(1, 9999)}",
+            "id": f"e{random.randint(1000, 9999)}",
             "subject": "Sample Issue",
             "body": "Customer has a problem",
             "urgency": random.choice(urgencies),
@@ -54,7 +53,6 @@ class CSOpsEnv:
         if self.time_left <= 0:
             done = True
 
-        # 🔥 STRICT SAFE RANGE (never 0 or 1)
         if reward <= 0:
             reward = 0.2
         elif reward >= 1:
