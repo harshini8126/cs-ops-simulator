@@ -61,7 +61,7 @@ Urgency: {email["urgency"]}
         except Exception:
             pass
 
-    
+    # fallback
     return Action(
         email_id=email["id"],
         category="general",
@@ -92,7 +92,8 @@ def run_task(task):
 
         if done:
             break
-    final_score = total_score / env.max_steps
+
+    final_score = total_score / (env.max_steps + 1)
 
     if final_score <= 0:
         final_score = 0.1
