@@ -1,4 +1,14 @@
-name: cs_ops_simulator
-version: 1.0
-entrypoint: env:CSOpsEnv
-description: A simulation environment for customer support operations involving email classification, prioritization, and action decisions under time constraints.
+name: cs-ops-simulator
+
+tasks:
+  - name: easy
+  - name: medium
+  - name: hard
+
+entrypoint:
+  command: python app.py
+
+endpoints:
+  reset: /reset
+  step: /step
+  state: /state involving email classification, prioritization, and action decisions under time constraints.
